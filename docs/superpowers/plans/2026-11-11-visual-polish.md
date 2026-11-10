@@ -35,7 +35,7 @@ Dashboard state owns the boolean so tab navigation retains the choice.
 - [x] Root: theme, Material NavigationBar, exact-value/reduced-motion transitions,
   privacy state; adapt tests of nav selection to actual Material3 navigation.
 - [x] Full suite/analyze/Web+APK, bounded Thai-font visual QA, independent review.
-- [ ] README / preview, inspect git staged files, commit and push existing main;
+- [x] README / preview, inspect git staged files, commit and push existing main;
   verify remote head. No real Firebase data writes or new Firestore rules.
 
 ## Evidence / decisions
@@ -60,3 +60,5 @@ Dashboard state owns the boolean so tab navigation retains the choice.
   inspection used an explicit in-memory demo entrypoint; it is not shipped.
 - The upstream OFL license is preserved verbatim, including one trailing space on
   line21; diff whitespace validation excludes only that vendored license file.
+- Published UI source commit a10c3cf to origin/main (2889310..a10c3cf), preserving
+  existing history. GitHub destination: https://github.com/Sukrit310/project_mobile.
