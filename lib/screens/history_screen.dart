@@ -169,10 +169,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ประวัติรายการ'),
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
         actions: [
-          IconButton(
+          IconButton.filledTonal(
             tooltip: 'เพิ่มรายการ',
             onPressed: widget.onAddTransaction,
             icon: const Icon(Icons.add),
@@ -189,7 +187,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               slivers: [
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+                  // เว้นขอบเท่ากันทุกหน้าหลัก และแยกชุดตัวกรองออกจากผลรายการ
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                   sliver: SliverToBoxAdapter(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -201,7 +200,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: AppColors.noticeBackground,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
                                 widget.notice!,
@@ -217,7 +216,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         InputDecorator(
                           decoration: const InputDecoration(
                             labelText: 'เดือน',
-                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.calendar_month_outlined),
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 4,
@@ -261,7 +260,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 8,
-                          runSpacing: 4,
+                          runSpacing: 8,
                           children: [
                             ChoiceChip(
                               label: const Text('ทั้งหมด'),
@@ -292,16 +291,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           decoration: const InputDecoration(
                             labelText: 'ค้นหาชื่อรายการ',
                             prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(),
                           ),
                           onChanged: (value) => setState(() => _query = value),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
+                        // พื้นขาวและเส้นขอบบางช่วยให้ยอดรวมแยกจากเครื่องมือค้นหา
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.outline),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,6 +310,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 '${transactions.length} รายการ',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
+                                  color: AppColors.text,
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -364,7 +365,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                     sliver: SliverList.builder(
                       itemCount: transactions.length,
                       itemBuilder: (context, index) {
@@ -386,7 +387,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           children: [
                             if (startsDay)
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                                padding: const EdgeInsets.fromLTRB(
+                                  4,
+                                  16,
+                                  4,
+                                  12,
+                                ),
                                 child: Text(
                                   formatThaiDate(transaction.date),
                                   style: const TextStyle(
@@ -398,7 +404,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             DecoratedBox(
                               decoration: BoxDecoration(
                                 color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppColors.outline),
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,7 +503,8 @@ class _HistoryTotal extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 12)),
+      // ชื่อยอดยังอ่านได้ชัดเมื่อขยายตัวอักษร โดยให้จำนวนเงินเด่นกว่าหนึ่งระดับ
+      Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 14)),
       const SizedBox(height: 4),
       Text(
         formatBaht(amountSatang),

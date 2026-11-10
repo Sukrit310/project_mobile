@@ -50,9 +50,7 @@ void main() {
 
     expect(find.text('หน้าประวัติจะพร้อมในขั้นตอนถัดไป'), findsOneWidget);
     expect(
-      tester
-          .widget<BottomNavigationBar>(find.byType(BottomNavigationBar))
-          .currentIndex,
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
       0,
     );
   });

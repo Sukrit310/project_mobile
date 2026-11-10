@@ -69,6 +69,12 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # ฝังฟอนต์ภาษาไทยไว้ในแอป เพื่อให้อ่านง่ายและใช้งานออฟไลน์ได้
+  fonts:
+    - family: NotoSansThai
+      fonts:
+        - asset: assets/fonts/NotoSansThai.ttf
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

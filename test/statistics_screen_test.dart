@@ -72,9 +72,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        tester
-            .widget<BottomNavigationBar>(find.byType(BottomNavigationBar))
-            .currentIndex,
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
         2,
       );
     },

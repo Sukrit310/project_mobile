@@ -69,10 +69,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('สถิติการเงิน'),
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
         actions: [
-          IconButton(
+          IconButton.filledTonal(
             tooltip: 'เพิ่มรายการ',
             onPressed: widget.onAddTransaction,
             icon: const Icon(Icons.add),
@@ -87,7 +85,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 584),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
+              // จัดแนวขอบการ์ดและตัวเลือกเดือนให้ต่อเนื่องกับหน้าหลัก
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -98,7 +97,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: AppColors.noticeBackground,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
                           widget.notice!,
@@ -112,7 +111,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      IconButton(
+                      IconButton.filledTonal(
                         tooltip: 'เดือนก่อนหน้า',
                         onPressed: () => _changeMonth(-1),
                         icon: const Icon(Icons.chevron_left),
@@ -121,7 +120,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         child: InputDecorator(
                           decoration: const InputDecoration(
                             labelText: 'เดือน',
-                            border: OutlineInputBorder(),
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 4,
@@ -155,19 +153,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                         ),
                       ),
-                      IconButton(
+                      IconButton.filledTonal(
                         tooltip: 'เดือนถัดไป',
                         onPressed: () => _changeMonth(1),
                         icon: const Icon(Icons.chevron_right),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   // ยอดสุทธิและจำนวนรายการอิงเฉพาะเดือน ต่างจากยอดคงเหลือสะสมบนหน้าหลัก
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
+                      // คงการ์ดยอดสุทธิเดิมไว้ และเพิ่มน้ำหนักสีเพื่อเน้นข้อมูลเงินจริง
+                      color: AppColors.primaryDeep,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -182,7 +181,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           formatBaht(summary.netSatang, decimalPlaces: true),
                           key: const Key('statistics-net'),
                           style: const TextStyle(
-                            fontSize: 28,
+                            fontSize: 30,
                             fontWeight: FontWeight.bold,
                             color: AppColors.onPrimary,
                           ),
@@ -264,7 +263,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       expensesByCategory: summary.expensesByCategory,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   _ChartSection(
                     title: 'รายรับและรายจ่าย',
                     subtitle: 'เปรียบเทียบยอดรวมในเดือนที่เลือก',
@@ -346,6 +345,8 @@ class _ChartSection extends StatelessWidget {
     decoration: BoxDecoration(
       color: AppColors.surface,
       borderRadius: BorderRadius.circular(16),
+      // เส้นขอบเดียวทำให้กราฟแยกจากพื้นหน้าโดยไม่เพิ่มเงาหนัก
+      border: Border.all(color: AppColors.outline),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -357,7 +358,7 @@ class _ChartSection extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: const TextStyle(fontSize: 12, color: AppColors.muted),
+          style: const TextStyle(fontSize: 14, color: AppColors.muted),
         ),
         const SizedBox(height: 20),
         child,

@@ -19,6 +19,8 @@ class Home extends StatelessWidget {
     this.onAddTransaction,
     this.notice,
     this.onDestinationSelected,
+    this.showBalance = true,
+    this.onToggleBalanceVisibility,
   });
 
   final List<MoneyTransaction>? transactions;
@@ -26,6 +28,8 @@ class Home extends StatelessWidget {
   final VoidCallback? onAddTransaction;
   final String? notice;
   final ValueChanged<int>? onDestinationSelected;
+  final bool showBalance;
+  final VoidCallback? onToggleBalanceVisibility;
 
   void _showNextStep(BuildContext context, String message) {
     ScaffoldMessenger.of(context)
@@ -46,7 +50,7 @@ class Home extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(12, 24, 12, 12),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 560),
@@ -59,23 +63,35 @@ class Home extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('สวัสดี 👋', style: TextStyle(fontSize: 12)),
-                            SizedBox(height: 2),
+                            Text(
+                              'สวัสดี 👋',
+                              style: TextStyle(
+                                color: AppColors.muted,
+                                fontSize: 13,
+                              ),
+                            ),
+                            SizedBox(height: 4),
                             Text(
                               'MoneyMate',
                               style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.5,
                               ),
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(width: 12),
                       IconButton.filledTonal(
                         tooltip: 'กระเป๋าเงิน',
                         style: IconButton.styleFrom(
-                          backgroundColor: AppColors.surface,
-                          foregroundColor: AppColors.text,
+                          backgroundColor: AppColors.mintSurface,
+                          foregroundColor: AppColors.primaryDeep,
+                          minimumSize: const Size(48, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                         onPressed: onDestinationSelected != null
                             ? () => onDestinationSelected!(3)
@@ -85,36 +101,53 @@ class Home extends StatelessWidget {
                               ),
                         icon: const Icon(
                           Icons.account_balance_wallet_outlined,
-                          size: 20,
+                          size: 22,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 24),
                   if (notice != null && notice!.trim().isNotEmpty) ...[
                     Semantics(
                       liveRegion: true,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: AppColors.noticeBackground,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text(
-                            notice!,
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 12,
-                            ),
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.info_outline_rounded,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  notice!,
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
                   ],
-                  BalanceCard(summary: summary),
-                  const SizedBox(height: 16),
+                  BalanceCard(
+                    summary: summary,
+                    showBalance: showBalance,
+                    onToggleBalanceVisibility: onToggleBalanceVisibility,
+                  ),
+                  const SizedBox(height: 24),
                   Wrap(
                     alignment: WrapAlignment.spaceBetween,
                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -124,14 +157,14 @@ class Home extends StatelessWidget {
                       const Text(
                         'รายการล่าสุด',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
                         formatThaiMonth(month),
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: AppColors.muted,
                         ),
                       ),
@@ -139,31 +172,29 @@ class Home extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   RecentTransactions(transactions: summary.recentTransactions),
-                  const SizedBox(height: 12),
-                  Center(
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.onPrimary,
-                        minimumSize: const Size(0, 50),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.onPrimary,
+                      minimumSize: const Size(48, 52),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
                       ),
-                      onPressed:
-                          onAddTransaction ??
-                          () => _showNextStep(
-                            context,
-                            'ฟอร์มเพิ่มรายการจะพร้อมในขั้นตอนถัดไป',
-                          ),
-                      icon: const Icon(Icons.add, size: 18),
-                      label: const Text(
-                        'เพิ่มรายการ',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                    ),
+                    onPressed:
+                        onAddTransaction ??
+                        () => _showNextStep(
+                          context,
+                          'ฟอร์มเพิ่มรายการจะพร้อมในขั้นตอนถัดไป',
                         ),
+                    icon: const Icon(Icons.add_rounded, size: 22),
+                    label: const Text(
+                      'เพิ่มรายการ',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),

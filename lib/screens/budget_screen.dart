@@ -106,10 +106,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: const Text('งบประมาณรายเดือน'),
-      backgroundColor: AppColors.background,
-      surfaceTintColor: Colors.transparent,
       actions: [
-        IconButton(
+        IconButton.filledTonal(
           tooltip: 'เพิ่มรายการ',
           onPressed: widget.onAddTransaction,
           icon: const Icon(Icons.add),
@@ -124,7 +122,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 584),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
+            // จัดระยะขอบให้เดือน วงเงิน และปุ่มแก้ไขอยู่ในแนวเดียวกัน
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -133,7 +132,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   const SizedBox(height: 16),
                 ],
                 _monthSelector(),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 StreamBuilder<BudgetFeed>(
                   key: ValueKey(_streamGeneration),
                   stream: _budgetStream,
@@ -147,11 +146,15 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             color: AppColors.muted,
                           ),
                           const SizedBox(height: 12),
-                          const Text('โหลดงบประมาณไม่สำเร็จ'),
+                          const Text(
+                            'โหลดงบประมาณไม่สำเร็จ',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           const SizedBox(height: 8),
                           const Text(
                             'ตรวจสอบการเชื่อมต่อและสิทธิ์เข้าถึงงบประมาณ แล้วลองอีกครั้ง',
                             textAlign: TextAlign.center,
+                            style: TextStyle(color: AppColors.muted),
                           ),
                           const SizedBox(height: 12),
                           FilledButton(
@@ -196,19 +199,20 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           const SizedBox(height: 16),
                         ],
                         _summaryCard(summary),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: AppColors.surface,
                             borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.outline),
                           ),
                           child: BudgetProgress(
                             limitSatang: summary.limitSatang,
                             expenseSatang: expense,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
                         FilledButton.icon(
                           key: const Key('budget-edit'),
                           onPressed: () => _editBudget(feed.budget),
@@ -246,7 +250,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
   /// ใช้ปี/เดือนเป็นค่า Dropdown โดยตรง เดือนว่างยังเลือกย้อนกลับมาดูได้
   Widget _monthSelector() => Row(
     children: [
-      IconButton(
+      IconButton.filledTonal(
         tooltip: 'เดือนก่อนหน้า',
         onPressed: _selectedMonth.year == 1 && _selectedMonth.month == 1
             ? null
@@ -259,7 +263,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
         child: InputDecorator(
           decoration: const InputDecoration(
             labelText: 'เดือน',
-            border: OutlineInputBorder(),
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           ),
           child: DropdownButtonHideUnderline(
@@ -286,7 +289,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
           ),
         ),
       ),
-      IconButton(
+      IconButton.filledTonal(
         tooltip: 'เดือนถัดไป',
         onPressed: _selectedMonth.year == 9999 && _selectedMonth.month == 12
             ? null
@@ -301,7 +304,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
   Widget _summaryCard(BudgetSummary summary) => Container(
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
-      color: AppColors.primary,
+      // ใช้สีน้ำเงินเข้มกับวงเงินจริง และคงรูปแบบการ์ดยอดของหน้าสถิติ
+      color: AppColors.primaryDeep,
       borderRadius: BorderRadius.circular(16),
     ),
     child: Column(
@@ -319,7 +323,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
           key: const Key('budget-limit'),
           style: const TextStyle(
             color: AppColors.onPrimary,
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -362,7 +366,7 @@ class _BudgetNotice extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.noticeBackground,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Text(message, style: const TextStyle(color: AppColors.primary)),
     ),

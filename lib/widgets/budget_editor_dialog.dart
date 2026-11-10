@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../app/app_theme.dart';
 import '../models/budget_model.dart';
 import '../services/budget_repository.dart';
 import '../utils/date_formatter.dart';
@@ -97,6 +98,9 @@ class _BudgetEditorDialogState extends State<BudgetEditorDialog> {
     canPop: !_saving,
     child: AlertDialog(
       scrollable: true,
+      // ผูกเดือนกับสัญลักษณ์ปฏิทิน เพื่อสื่อขอบเขตวงเงินโดยไม่เพิ่มหัวข้อซ้ำ
+      icon: const Icon(Icons.account_balance_wallet_outlined),
+      iconColor: AppColors.primary,
       title: Text(
         (widget.initialBudget?.limitSatang ?? 0) > 0
             ? 'แก้ไขงบประมาณ'
@@ -108,8 +112,27 @@ class _BudgetEditorDialogState extends State<BudgetEditorDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(formatThaiMonth(widget.month)),
-            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.mintSurface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.calendar_month_outlined, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      formatThaiMonth(widget.month),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
             TextFormField(
               key: const Key('budget-amount'),
               controller: _amountController,
@@ -120,7 +143,7 @@ class _BudgetEditorDialogState extends State<BudgetEditorDialog> {
               decoration: const InputDecoration(
                 labelText: 'วงเงิน (บาท)',
                 hintText: 'เช่น 5000.00',
-                border: OutlineInputBorder(),
+                errorMaxLines: 4,
               ),
               validator: validateTransactionAmount,
               textInputAction: TextInputAction.done,
@@ -129,6 +152,7 @@ class _BudgetEditorDialogState extends State<BudgetEditorDialog> {
             const SizedBox(height: 12),
             const Text(
               'กรอกจำนวนเงินมากกว่า 0 ทศนิยมไม่เกิน 2 ตำแหน่ง โดยไม่ใส่จุลภาค',
+              style: TextStyle(color: AppColors.muted, fontSize: 14),
             ),
             if (_saving) ...[
               const SizedBox(height: 16),
@@ -140,9 +164,17 @@ class _BudgetEditorDialogState extends State<BudgetEditorDialog> {
               const SizedBox(height: 16),
               Semantics(
                 liveRegion: true,
-                child: Text(
-                  _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                // ข้อผิดพลาดใช้พื้นสีอ่อน โดยไม่รบกวนค่าที่ผู้ใช้กรอกไว้
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.expenseSurface,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(color: AppColors.expense),
+                  ),
                 ),
               ),
             ],

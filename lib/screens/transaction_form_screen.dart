@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../app/app_theme.dart';
 import '../models/money_transaction.dart';
 import '../services/transaction_repository.dart';
 import '../utils/categories.dart';
@@ -198,7 +199,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         body: SafeArea(
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 560),
@@ -209,114 +210,168 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TextFormField(
-                        key: const Key('transaction-title'),
-                        controller: _titleController,
-                        enabled: !_saving,
-                        textInputAction: TextInputAction.next,
-                        validator: validateTransactionTitle,
-                        decoration: const InputDecoration(
-                          labelText: 'ชื่อรายการ',
-                          hintText: 'เช่น ค่าอาหารกลางวัน',
-                          border: OutlineInputBorder(),
-                          errorMaxLines: 4,
+                      // รวมรายละเอียดรายการไว้บนพื้นเดียว เพื่อแยกจากส่วนจำนวนเงินและวันที่
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.outline),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text('ประเภทรายการ'),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 8,
-                        children: [
-                          for (final type in TransactionType.values)
-                            ChoiceChip(
-                              label: Text(
-                                type == TransactionType.income
-                                    ? 'รายรับ'
-                                    : 'รายจ่าย',
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            TextFormField(
+                              key: const Key('transaction-title'),
+                              controller: _titleController,
+                              enabled: !_saving,
+                              textInputAction: TextInputAction.next,
+                              validator: validateTransactionTitle,
+                              decoration: const InputDecoration(
+                                labelText: 'ชื่อรายการ',
+                                hintText: 'เช่น ค่าอาหารกลางวัน',
+                                errorMaxLines: 4,
                               ),
-                              selected: _type == type,
-                              onSelected: _saving
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'ประเภทรายการ',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 12,
+                              runSpacing: 8,
+                              children: [
+                                for (final type in TransactionType.values)
+                                  ChoiceChip(
+                                    avatar: Icon(
+                                      type == TransactionType.income
+                                          ? Icons.south_west_rounded
+                                          : Icons.north_east_rounded,
+                                      size: 18,
+                                      color: type == TransactionType.income
+                                          ? AppColors.income
+                                          : AppColors.expense,
+                                    ),
+                                    label: Text(
+                                      type == TransactionType.income
+                                          ? 'รายรับ'
+                                          : 'รายจ่าย',
+                                    ),
+                                    selected: _type == type,
+                                    // ใช้สีพื้นและสถานะ selected แทนเครื่องหมายถูกที่ทับไอคอนลูกศร
+                                    showCheckmark: false,
+                                    onSelected: _saving
+                                        ? null
+                                        : (selected) {
+                                            if (!selected || _type == type) {
+                                              return;
+                                            }
+                                            setState(() {
+                                              _type = type;
+                                              _category = categoriesForType(
+                                                type,
+                                              ).first;
+                                            });
+                                          },
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            DropdownButtonFormField<TransactionCategory>(
+                              key: const Key('transaction-category'),
+                              initialValue: _category,
+                              isExpanded: true,
+                              itemHeight: null,
+                              decoration: const InputDecoration(
+                                labelText: 'หมวดหมู่',
+                              ),
+                              items: [
+                                for (final category in categories)
+                                  DropdownMenuItem(
+                                    value: category,
+                                    child: Text(
+                                      transactionCategoryLabel(category),
+                                    ),
+                                  ),
+                              ],
+                              onChanged: _saving
                                   ? null
-                                  : (selected) {
-                                      if (!selected || _type == type) return;
-                                      setState(() {
-                                        _type = type;
-                                        _category = categoriesForType(type)
-                                            .first;
-                                      });
+                                  : (value) {
+                                      if (value != null) {
+                                        setState(() => _category = value);
+                                      }
                                     },
                             ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      DropdownButtonFormField<TransactionCategory>(
-                        key: const Key('transaction-category'),
-                        initialValue: _category,
-                        isExpanded: true,
-                        itemHeight: null,
-                        decoration: const InputDecoration(
-                          labelText: 'หมวดหมู่',
-                          border: OutlineInputBorder(),
+                          ],
                         ),
-                        items: [
-                          for (final category in categories)
-                            DropdownMenuItem(
-                              value: category,
-                              child: Text(transactionCategoryLabel(category)),
+                      ),
+                      const SizedBox(height: 16),
+                      // แยกยอดและวันทำรายการเป็นอีกกลุ่ม โดยไม่เปลี่ยนลำดับการกรอกหรือการตรวจค่า
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.outline),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            TextFormField(
+                              key: const Key('transaction-amount'),
+                              controller: _amountController,
+                              enabled: !_saving,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) => _save(),
+                              validator: validateTransactionAmount,
+                              decoration: const InputDecoration(
+                                labelText: 'จำนวนเงิน (บาท)',
+                                hintText: '0.00',
+                                helperText:
+                                    'มากกว่า 0 บาท · ทศนิยมไม่เกิน 2 ตำแหน่ง',
+                                helperMaxLines: 3,
+                                errorMaxLines: 5,
+                              ),
                             ),
-                        ],
-                        onChanged: _saving
-                            ? null
-                            : (value) {
-                                if (value != null) {
-                                  setState(() => _category = value);
-                                }
-                              },
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        key: const Key('transaction-amount'),
-                        controller: _amountController,
-                        enabled: !_saving,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _save(),
-                        validator: validateTransactionAmount,
-                        decoration: const InputDecoration(
-                          labelText: 'จำนวนเงิน (บาท)',
-                          hintText: '0.00',
-                          helperText: 'มากกว่า 0 บาท · ทศนิยมไม่เกิน 2 ตำแหน่ง',
-                          helperMaxLines: 3,
-                          errorMaxLines: 5,
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      OutlinedButton(
-                        key: const Key('transaction-date'),
-                        onPressed: _saving ? null : _chooseDate,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
-                        ),
-                        child: Text(
-                          'วันที่: ${_date.day}/${_date.month}/${_date.year}',
+                            const SizedBox(height: 16),
+                            OutlinedButton.icon(
+                              key: const Key('transaction-date'),
+                              onPressed: _saving ? null : _chooseDate,
+                              style: OutlinedButton.styleFrom(
+                                alignment: Alignment.centerLeft,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                              ),
+                              icon: const Icon(Icons.calendar_month_outlined),
+                              label: Text(
+                                'วันที่: ${_date.day}/${_date.month}/${_date.year}',
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       if (_saveError != null) ...[
                         const SizedBox(height: 16),
                         Semantics(
                           liveRegion: true,
-                          child: Text(
-                            _saveError!,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
+                          // รักษาข้อความผิดพลาดไว้ใกล้คำสั่งบันทึก พร้อมพื้นสีอ่อนให้อ่านง่าย
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.expenseSurface,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              _saveError!,
+                              style: const TextStyle(color: AppColors.expense),
                             ),
                           ),
                         ),
@@ -326,7 +381,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                         key: const Key('transaction-save'),
                         onPressed: _saving ? null : _save,
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF20536B),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 16,
