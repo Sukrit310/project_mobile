@@ -1,0 +1,50 @@
+// กฎสิทธิ์ฝั่งเซิร์ฟเวอร์: ผู้ใช้เข้าถึงได้เฉพาะธุรกรรมและงบประมาณใต้ UID ของตน
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ต้องลงชื่อเข้าใช้ และ UID ใน token ต้องตรงกับเส้นทางเอกสาร
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // จำกัดฟิลด์และชนิดข้อมูล ไม่ให้แอปส่งยอดติดลบหรือฟิลด์อื่นแทรกมา
+    function validTransaction() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['title', 'amountSatang', 'type', 'category', 'date'])
+        && data.keys().hasOnly(['title', 'amountSatang', 'type', 'category', 'date'])
+        && data.title is string
+        && data.title.size() > 0 && data.title.size() <= 80
+        && data.title.matches('.*[^ \\t\\r\\n].*')
+        && data.amountSatang is int
+        && data.amountSatang > 0 && data.amountSatang <= 99999999999
+        && data.type in ['income', 'expense']
+        && data.category in ['food', 'salary', 'housing', 'other']
+        && data.date is timestamp;
+    }
+
+    // งบหนึ่งเอกสารต่อเดือน ใช้ยอดสตางค์และเวลาเซิร์ฟเวอร์เพื่อไม่เก็บยอดใช้ไปซ้ำ
+    function validBudget(monthId) {
+      let data = request.resource.data;
+      return data.keys().hasAll(['monthKey', 'limitSatang', 'updatedAt'])
+        && data.keys().hasOnly(['monthKey', 'limitSatang', 'updatedAt'])
+        && monthId.matches('^[0-9]{4}-(0[1-9]|1[0-2])$')
+        && !monthId.matches('^0000-.*$')
+        && data.monthKey is string && data.monthKey == monthId
+        && data.limitSatang is int
+        && data.limitSatang >= 0 && data.limitSatang <= 99999999999
+        && data.updatedAt is timestamp && data.updatedAt == request.time;
+    }
+
+    match /users/{userId}/transactions/{transactionId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && validTransaction();
+      allow delete: if isOwner(userId);
+    }
+
+    match /users/{userId}/budgets/{monthId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && validBudget(monthId);
+      allow delete: if false;
+    }
+  }
+}

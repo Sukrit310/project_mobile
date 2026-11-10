@@ -1,0 +1,2 @@
+// โหลดค่าที่ Flutter สร้างให้สำหรับการ build iOS แบบ debug
+#include "Generated.xcconfig"

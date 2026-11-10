@@ -1,0 +1,2 @@
+// เชื่อมค่าการ build แบบ debug ไปยังไฟล์ตั้งค่าที่ Flutter สร้างใน ephemeral
+#include "ephemeral/Flutter-Generated.xcconfig"

@@ -1,0 +1,3 @@
+// รวมค่าของ Flutter และการเตือนคอมไพเลอร์สำหรับ macOS แบบ release
+#include "../../Flutter/Flutter-Release.xcconfig"
+#include "Warnings.xcconfig"
