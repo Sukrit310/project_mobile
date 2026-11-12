@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../screens/dashboard_screen.dart';
+import '../screens/welcome_screen.dart';
 import '../services/budget_repository.dart';
 import '../services/transaction_repository.dart';
 import 'app_theme.dart';
@@ -29,12 +30,33 @@ class MyApp extends StatelessWidget {
     supportedLocales: const [Locale('th'), Locale('en')],
     localizationsDelegates: GlobalMaterialLocalizations.delegates,
     theme: buildAppTheme(),
-    home: repository == null
-        ? const FirebaseBootstrap()
-        : DashboardScreen(
-            repository: repository!,
-            budgetRepository: budgetRepository,
-            referenceMonth: referenceMonth,
-          ),
+    home: _WelcomeGate(
+      builder: (_) => repository == null
+          ? const FirebaseBootstrap()
+          : DashboardScreen(
+              repository: repository!,
+              budgetRepository: budgetRepository,
+              referenceMonth: referenceMonth,
+            ),
+    ),
   );
+}
+
+/// สลับเนื้อหาภายใน root route เดิม จึงไม่มี Welcome อยู่ในประวัติ Back หลังเริ่มใช้งาน
+/// State อยู่เฉพาะรอบเปิดแอปนี้ และยังส่ง repository/เดือนล่าสุดเมื่อ MyApp ถูกประกอบใหม่
+class _WelcomeGate extends StatefulWidget {
+  const _WelcomeGate({required this.builder});
+  final WidgetBuilder builder;
+
+  @override
+  State<_WelcomeGate> createState() => _WelcomeGateState();
+}
+
+class _WelcomeGateState extends State<_WelcomeGate> {
+  bool _started = false;
+
+  @override
+  Widget build(BuildContext context) => _started
+      ? widget.builder(context)
+      : WelcomeScreen(onGetStarted: () => setState(() => _started = true));
 }

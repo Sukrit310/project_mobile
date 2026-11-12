@@ -16,6 +16,8 @@ void main() {
     debugDefaultTargetPlatformOverride = TargetPlatform.linux;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
     await tester.pumpWidget(const MyApp());
+    await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+    await tester.tap(find.text('เริ่มต้นใช้งาน'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('ทดลองด้วยข้อมูลตัวอย่าง'));
     await tester.pumpAndSettle();
@@ -68,6 +70,8 @@ void main() {
           referenceMonth: DateTime(2026, 11),
         ),
       );
+      await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+      await tester.tap(find.text('เริ่มต้นใช้งาน'));
       await tester.pumpAndSettle();
       // ทางลัดกระเป๋าเงินบน Home เปิดแท็บงบเดียวกับเมนูล่าง
       await tester.tap(find.byTooltip('กระเป๋าเงิน'));

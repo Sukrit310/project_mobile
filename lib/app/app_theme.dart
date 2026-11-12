@@ -47,6 +47,10 @@ ThemeData buildAppTheme() {
     colorScheme: scheme,
     fontFamily: 'NotoSansThai',
   );
+  final textTheme = base.textTheme.apply(
+    bodyColor: AppColors.text,
+    displayColor: AppColors.text,
+  );
   final round = RoundedRectangleBorder(borderRadius: BorderRadius.circular(14));
   final inputBorder = OutlineInputBorder(
     borderRadius: BorderRadius.circular(12),
@@ -57,9 +61,21 @@ ThemeData buildAppTheme() {
     colorScheme: scheme,
     // โหลดฟอนต์จาก assets เพื่อให้อักษรไทยตรงกันบน Android/Web และใช้งานออฟไลน์ได้
     fontFamily: 'NotoSansThai',
-    textTheme: base.textTheme.apply(
-      bodyColor: AppColors.text,
-      displayColor: AppColors.text,
+    textTheme: textTheme.copyWith(
+      titleLarge: textTheme.titleLarge?.copyWith(
+        fontSize: 24,
+        fontWeight: FontWeight.w700,
+      ),
+      titleMedium: textTheme.titleMedium?.copyWith(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+      ),
+      titleSmall: textTheme.titleSmall?.copyWith(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      ),
+      bodyMedium: textTheme.bodyMedium?.copyWith(height: 1.5),
+      labelLarge: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
     ),
     scaffoldBackgroundColor: AppColors.background,
     appBarTheme: const AppBarThemeData(
@@ -70,10 +86,52 @@ ThemeData buildAppTheme() {
       centerTitle: false,
       titleTextStyle: TextStyle(
         fontFamily: 'NotoSansThai',
-        fontSize: 21,
+        fontSize: 22,
         fontWeight: FontWeight.w700,
         color: AppColors.text,
       ),
+    ),
+    cardTheme: CardThemeData(
+      color: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppColors.outline),
+      ),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.onPrimary,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      extendedTextStyle: const TextStyle(
+        fontFamily: 'NotoSansThai',
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      indicatorShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        return IconThemeData(
+          size: 24,
+          color: states.contains(WidgetState.selected)
+              ? AppColors.primaryDeep
+              : AppColors.muted,
+        );
+      }),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return TextStyle(
+          fontFamily: 'NotoSansThai',
+          fontSize: 12,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          color: selected ? AppColors.primaryDeep : AppColors.muted,
+        );
+      }),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(

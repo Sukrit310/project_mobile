@@ -100,6 +100,7 @@ void main() {
       expect(summary.recentTransactions.map((entry) => entry.id), [
         'newest',
         'salary',
+        'old',
       ]);
       expect(records.map((entry) => entry.id), ['old', 'newest', 'salary']);
     },

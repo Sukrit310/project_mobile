@@ -57,6 +57,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
   DateTime _month(DateTime date) => DateTime(date.year, date.month);
   String _monthKey(DateTime date) => '${date.year}-${date.month}';
 
+  String _dayLabel(DateTime date) {
+    final now = DateTime.now();
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    final label = DateUtils.isSameDay(date, now)
+        ? 'วันนี้ · '
+        : DateUtils.isSameDay(date, yesterday)
+        ? 'เมื่อวาน · '
+        : '';
+    return '$label${formatThaiDate(date)}';
+  }
+
   /// รวมเดือนข้อมูลกับเดือนที่เลือกไว้ เพื่อให้ dropdown ยังใช้ได้แม้รายการสุดท้ายถูกลบ
   List<DateTime> get _availableMonths {
     final months = <DateTime>{
@@ -212,6 +223,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                           const SizedBox(height: 16),
                         ],
+                        const Text(
+                          'ค้นหาและจัดการรายรับรายจ่ายของคุณ',
+                          style: TextStyle(color: AppColors.muted),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          key: const Key('history-search'),
+                          decoration: const InputDecoration(
+                            labelText: 'ค้นหาชื่อรายการ',
+                            hintText: 'พิมพ์ชื่อรายการที่ต้องการค้นหา',
+                            prefixIcon: Icon(Icons.search),
+                          ),
+                          onChanged: (value) => setState(() => _query = value),
+                        ),
+                        const SizedBox(height: 16),
                         // ตัวกรองเดือน ประเภท และคำค้นเปลี่ยนเฉพาะภาพที่แสดง ไม่แก้ข้อมูลจริง
                         InputDecorator(
                           decoration: const InputDecoration(
@@ -285,15 +311,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        TextField(
-                          key: const Key('history-search'),
-                          decoration: const InputDecoration(
-                            labelText: 'ค้นหาชื่อรายการ',
-                            prefixIcon: Icon(Icons.search),
-                          ),
-                          onChanged: (value) => setState(() => _query = value),
-                        ),
                         const SizedBox(height: 24),
                         // พื้นขาวและเส้นขอบบางช่วยให้ยอดรวมแยกจากเครื่องมือค้นหา
                         Container(
@@ -338,26 +355,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                 ),
                 if (transactions.isEmpty)
-                  const SliverPadding(
-                    padding: EdgeInsets.all(32),
+                  SliverPadding(
+                    padding: const EdgeInsets.all(32),
                     sliver: SliverToBoxAdapter(
                       child: Column(
                         children: [
                           Icon(
-                            Icons.search_off_outlined,
+                            widget.transactions.isEmpty
+                                ? Icons.receipt_long_outlined
+                                : Icons.search_off_outlined,
                             size: 40,
                             color: AppColors.muted,
                           ),
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
                           Text(
-                            'ไม่พบรายการที่ตรงกับตัวกรอง',
+                            widget.transactions.isEmpty
+                                ? 'ยังไม่มีรายการ'
+                                : 'ไม่พบรายการที่ตรงกับตัวกรอง',
                             textAlign: TextAlign.center,
                           ),
-                          SizedBox(height: 8),
+                          if (widget.transactions.isEmpty)
+                            TextButton.icon(
+                              onPressed: widget.onAddTransaction,
+                              icon: const Icon(Icons.add),
+                              label: const Text('เพิ่มรายการแรก'),
+                            ),
+                          const SizedBox(height: 8),
                           Text(
-                            'ลองเลือกเดือน ประเภท หรือคำค้นหาอื่น',
+                            widget.transactions.isEmpty
+                                ? 'เริ่มบันทึกเพื่อดูรายรับรายจ่ายของคุณ'
+                                : 'ลองเลือกเดือน ประเภท หรือคำค้นหาอื่น',
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: AppColors.muted),
+                            style: const TextStyle(color: AppColors.muted),
                           ),
                         ],
                       ),
@@ -394,7 +423,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   12,
                                 ),
                                 child: Text(
-                                  formatThaiDate(transaction.date),
+                                  _dayLabel(transaction.date),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.muted,

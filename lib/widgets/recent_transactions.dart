@@ -6,7 +6,7 @@ import '../app/app_theme.dart';
 import '../models/money_transaction.dart';
 import 'transaction_tile.dart';
 
-/// แสดงรายการตามลำดับที่ผู้เรียกส่งมา การเลือกสองรายการล่าสุดอยู่ในโมเดลสรุป
+/// แสดงรายการตามลำดับที่ผู้เรียกส่งมา การเลือกรายการล่าสุดอยู่ในโมเดลสรุป
 class RecentTransactions extends StatelessWidget {
   const RecentTransactions({super.key, required this.transactions});
 

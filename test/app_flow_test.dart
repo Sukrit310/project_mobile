@@ -33,6 +33,8 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.linux;
       addTearDown(() => debugDefaultTargetPlatformOverride = null);
       await tester.pumpWidget(const MyApp());
+      await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+      await tester.tap(find.text('เริ่มต้นใช้งาน'));
       await tester.pumpAndSettle();
       expect(find.text('ยังเชื่อมต่อ Firebase ไม่สำเร็จ'), findsOneWidget);
       expect(find.text('฿8,500.00'), findsNothing);
@@ -52,6 +54,8 @@ void main() {
     await tester.pumpWidget(
       MyApp(repository: repository, referenceMonth: DateTime(2026, 11)),
     );
+    await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+    await tester.tap(find.text('เริ่มต้นใช้งาน'));
     await tester.pumpAndSettle();
     expect(find.text('฿0.00'), findsOneWidget);
     expect(find.text('ยังไม่มีรายการในตอนนี้'), findsOneWidget);
@@ -77,6 +81,8 @@ void main() {
     final repository = ControlledRepository();
     addTearDown(repository.controller.close);
     await tester.pumpWidget(MyApp(repository: repository));
+    await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+    await tester.tap(find.text('เริ่มต้นใช้งาน'));
     await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     repository.controller.addError(StateError('read failed'));
@@ -96,6 +102,8 @@ void main() {
       final repository = ControlledRepository();
       addTearDown(repository.controller.close);
       await tester.pumpWidget(MyApp(repository: repository));
+      await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+      await tester.tap(find.text('เริ่มต้นใช้งาน'));
       await tester.pump();
       repository.controller.add(
         TransactionFeed(transactions: [], hasPendingWrites: true),

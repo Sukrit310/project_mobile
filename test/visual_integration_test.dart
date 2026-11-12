@@ -26,6 +26,9 @@ void main() {
     expect(tester.takeException(), isNull);
     tester.view.physicalSize = const Size(401, 800);
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+    await tester.tap(find.text('เริ่มต้นใช้งาน'));
+    await tester.pumpAndSettle();
     expect(find.text('฿8,500.00'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -42,6 +45,8 @@ void main() {
         await tester.pumpWidget(
           MyApp(repository: repository, referenceMonth: sampleReferenceMonth),
         );
+        await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+        await tester.tap(find.text('เริ่มต้นใช้งาน'));
         await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('balance-visibility')));
         await tester.pumpAndSettle();

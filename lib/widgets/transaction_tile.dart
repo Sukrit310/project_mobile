@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../app/app_theme.dart';
 import '../models/money_transaction.dart';
+import '../utils/categories.dart';
 import '../utils/date_formatter.dart';
 import '../utils/money_format.dart';
 import 'animated_money.dart';
@@ -16,6 +17,7 @@ class TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final categoryLabel = transactionCategoryLabel(transaction.category);
     final icon = switch (transaction.category) {
       TransactionCategory.food => Icons.restaurant,
       TransactionCategory.salary => Icons.payments_outlined,
@@ -38,9 +40,24 @@ class TransactionTile extends StatelessWidget {
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
-        Text(
-          formatThaiDate(transaction.date),
-          style: const TextStyle(color: AppColors.muted, fontSize: 13),
+        Wrap(
+          spacing: 8,
+          runSpacing: 2,
+          children: [
+            if (transaction.title.trim() != categoryLabel)
+              Text(
+                categoryLabel,
+                style: const TextStyle(
+                  color: AppColors.muted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            Text(
+              formatThaiDate(transaction.date),
+              style: const TextStyle(color: AppColors.muted, fontSize: 12),
+            ),
+          ],
         ),
       ],
     );
@@ -59,13 +76,13 @@ class TransactionTile extends StatelessWidget {
                 : CrossAxisAlignment.center,
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: transaction.isIncome
                       ? AppColors.incomeSurface
                       : AppColors.expenseSurface,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
                   icon,

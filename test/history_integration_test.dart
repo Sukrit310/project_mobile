@@ -19,11 +19,14 @@ void main() {
       await tester.pumpWidget(
         MyApp(repository: repository, referenceMonth: DateTime(2026, 11)),
       );
+      await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+      await tester.tap(find.text('เริ่มต้นใช้งาน'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('ประวัติ'));
       await tester.pumpAndSettle();
       final menu = find.byKey(const Key('history-actions-food-2026-11-08'));
       await tester.ensureVisible(menu);
+      await tester.pumpAndSettle();
       await tester.tap(menu);
       await tester.pumpAndSettle();
       await tester.tap(find.text('แก้ไข'));
@@ -34,6 +37,7 @@ void main() {
         '50.25',
       );
       await tester.ensureVisible(find.text('บันทึกการแก้ไข'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('บันทึกการแก้ไข'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('หน้าหลัก'));
@@ -54,11 +58,14 @@ void main() {
       await tester.pumpWidget(
         MyApp(repository: repository, referenceMonth: DateTime(2026, 11)),
       );
+      await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+      await tester.tap(find.text('เริ่มต้นใช้งาน'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('ประวัติ'));
       await tester.pumpAndSettle();
       final menu = find.byKey(const Key('history-actions-food-2026-11-08'));
       await tester.ensureVisible(menu);
+      await tester.pumpAndSettle();
       await tester.tap(menu);
       await tester.pumpAndSettle();
       await tester.tap(find.text('ลบ'));
@@ -102,6 +109,8 @@ void main() {
       await tester.pumpWidget(
         MyApp(repository: repository, referenceMonth: DateTime(2026, 11)),
       );
+      await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+      await tester.tap(find.text('เริ่มต้นใช้งาน'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('ประวัติ'));
       await tester.pumpAndSettle();

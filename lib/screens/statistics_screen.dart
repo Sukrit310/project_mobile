@@ -5,11 +5,15 @@ import 'package:flutter/material.dart';
 import '../app/app_theme.dart';
 import '../models/money_transaction.dart';
 import '../utils/date_formatter.dart';
+import '../utils/categories.dart';
+import '../utils/finance_insights.dart';
 import '../utils/money_format.dart';
 import '../utils/statistics_calculator.dart';
+import '../utils/statistics_trend.dart';
 import '../widgets/expense_chart.dart';
 import '../widgets/income_expense_chart.dart';
 import '../widgets/moneymate_navigation_bar.dart';
+import '../widgets/trend_chart.dart';
 
 /// รับข้อมูลชุดเดียวกับ Dashboard โดยไม่เรียก Firestore ซ้ำในหน้ากราฟ
 class StatisticsScreen extends StatefulWidget {
@@ -65,6 +69,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final summary = calculateMonthlyStatistics(
       widget.transactions,
       _selectedMonth,
+    );
+    final trend = calculateExpenseTrend(widget.transactions, _selectedMonth);
+    final insight = monthlyExpenseInsight(
+      widget.transactions,
+      month: _selectedMonth,
     );
     return Scaffold(
       appBar: AppBar(
@@ -255,6 +264,41 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     ),
                   ],
                   const SizedBox(height: 24),
+                  _ChartSection(
+                    title: 'สรุปจากรายการจริง',
+                    subtitle:
+                        'รายจ่าย ${trend.expenseCount} รายการในเดือนที่เลือก',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (insight != null) ...[
+                          Text(
+                            'หมวด${transactionCategoryLabel(insight.category)}มีรายจ่ายสูงที่สุด${insight.isTied ? ' (ร่วม)' : ''}',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            formatBaht(
+                              insight.categorySatang,
+                              decimalPlaces: true,
+                            ),
+                            style: const TextStyle(color: AppColors.expense),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        Text(
+                          _comparisonText(trend),
+                          style: const TextStyle(color: AppColors.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TrendChart(
+                    transactions: widget.transactions,
+                    month: _selectedMonth,
+                  ),
+                  const SizedBox(height: 16),
                   // ส่งผลรวมสำเร็จรูปให้กราฟทั้งสอง จึงไม่ต้องอ่าน Firestore แยกอีกครั้ง
                   _ChartSection(
                     title: 'สัดส่วนรายจ่าย',
@@ -284,6 +328,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ),
     );
   }
+}
+
+String _comparisonText(ExpenseTrend trend) {
+  final change = trend.changePercent;
+  if (change == null) {
+    if (!trend.isCompleteMonth && trend.expenseCount > 0) {
+      return 'เดือนที่เลือกยังไม่สิ้นสุด จึงยังไม่เปรียบเทียบกับเดือนก่อน';
+    }
+    return 'ยังมีข้อมูลไม่พอสำหรับเปรียบเทียบ';
+  }
+  if (change == 0) return 'รายจ่ายเท่ากับเดือนก่อน';
+  final percent = change.abs() < 0.1 ? '<0.1' : change.abs().toStringAsFixed(1);
+  return 'รายจ่าย${change > 0 ? 'เพิ่มขึ้น' : 'ลดลง'} $percent% จากเดือนก่อน';
 }
 
 /// ยอดรายรับหรือรายจ่ายหนึ่งช่อง ใช้สีและไอคอนช่วยแยกความหมาย

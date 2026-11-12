@@ -25,7 +25,7 @@ class BalanceCard extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.primaryDeep,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -39,8 +39,8 @@ class BalanceCard extends StatelessWidget {
                     'ยอดสุทธิทั้งหมด',
                     style: TextStyle(
                       color: AppColors.balanceLabel,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -79,48 +79,59 @@ class BalanceCard extends StatelessWidget {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Divider(height: 1, color: AppColors.balanceDivider),
+            const SizedBox(height: 4),
+            const Text(
+              'สะสมจากทุกรายการ',
+              style: TextStyle(color: AppColors.balanceLabel, fontSize: 12),
             ),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                // เมื่อตัวอักษรใหญ่ ให้ยอดรายเดือนเรียงเต็มแถวแทนการบีบสองคอลัมน์
-                final largeText =
-                    MediaQuery.textScalerOf(context).scale(14) > 20;
-                final width = largeText
-                    ? constraints.maxWidth
-                    : (constraints.maxWidth - 16) / 2;
-                return Wrap(
-                  spacing: 16,
-                  runSpacing: 20,
-                  children: [
-                    SizedBox(
-                      width: width,
-                      child: _MonthlyAmount(
-                        label: 'รายรับเดือนนี้',
-                        amount: formatBaht(
-                          summary.incomeSatang,
-                          showPlus: true,
+            const SizedBox(height: 20),
+            // แยกยอดเฉพาะเดือนออกจากยอดสะสมด้วยพื้นผิวเดียวกันทั้งสองประเภท
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // เมื่อตัวอักษรใหญ่ ให้ยอดรายเดือนเรียงเต็มแถวแทนการบีบสองคอลัมน์
+                  final stacked =
+                      MediaQuery.textScalerOf(context).scale(14) > 20 ||
+                      constraints.maxWidth < 200;
+                  final width = stacked
+                      ? constraints.maxWidth
+                      : (constraints.maxWidth - 16) / 2;
+                  return Wrap(
+                    spacing: 16,
+                    runSpacing: 20,
+                    children: [
+                      SizedBox(
+                        width: width,
+                        child: _MonthlyAmount(
+                          label: 'รายรับเดือนนี้',
+                          amount: formatBaht(
+                            summary.incomeSatang,
+                            showPlus: true,
+                          ),
+                          color: AppColors.incomeHighlight,
+                          icon: Icons.south_west_rounded,
+                          showBalance: showBalance,
                         ),
-                        color: AppColors.incomeHighlight,
-                        icon: Icons.south_west_rounded,
-                        showBalance: showBalance,
                       ),
-                    ),
-                    SizedBox(
-                      width: width,
-                      child: _MonthlyAmount(
-                        label: 'รายจ่ายเดือนนี้',
-                        amount: formatBaht(-summary.expenseSatang),
-                        color: AppColors.expenseHighlight,
-                        icon: Icons.north_east_rounded,
-                        showBalance: showBalance,
+                      SizedBox(
+                        width: width,
+                        child: _MonthlyAmount(
+                          label: 'รายจ่ายเดือนนี้',
+                          amount: formatBaht(-summary.expenseSatang),
+                          color: AppColors.expenseHighlight,
+                          icon: Icons.north_east_rounded,
+                          showBalance: showBalance,
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                    ],
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -179,7 +190,7 @@ class _MonthlyAmount extends StatelessWidget {
             showBalance: showBalance,
             style: TextStyle(
               color: color,
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.w700,
             ),
           ),

@@ -21,6 +21,8 @@ void main() {
       await tester.pumpWidget(
         MyApp(repository: repository, referenceMonth: DateTime(2026, 11)),
       );
+      await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+      await tester.tap(find.text('เริ่มต้นใช้งาน'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('สถิติ'));
       await tester.pumpAndSettle();
@@ -72,6 +74,8 @@ void main() {
       await tester.pumpWidget(
         MyApp(repository: repository, referenceMonth: DateTime(2026, 11)),
       );
+      await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+      await tester.tap(find.text('เริ่มต้นใช้งาน'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('สถิติ'));
       await tester.pumpAndSettle();
@@ -166,6 +170,8 @@ void main() {
     await tester.pumpWidget(
       MyApp(repository: repository, referenceMonth: DateTime(2026, 11)),
     );
+    await tester.ensureVisible(find.text('เริ่มต้นใช้งาน'));
+    await tester.tap(find.text('เริ่มต้นใช้งาน'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('สถิติ'));
     await tester.pumpAndSettle();

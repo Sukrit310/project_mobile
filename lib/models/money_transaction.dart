@@ -68,7 +68,7 @@ class DashboardSummary {
       balanceSatang: balance,
       incomeSatang: income,
       expenseSatang: expense,
-      recentTransactions: List.unmodifiable(sorted.take(2)),
+      recentTransactions: List.unmodifiable(sorted.take(5)),
     );
   }
 

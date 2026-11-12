@@ -29,7 +29,7 @@ class MoneyMateNavigationBar extends StatelessWidget {
         // NavigationBar ให้สถานะเลือกและพื้นที่แตะตาม Material 3 พร้อมป้ายชื่อทุกหน้า
         child: NavigationBar(
           selectedIndex: currentIndex,
-          height: 76,
+          height: 80,
           elevation: 0,
           backgroundColor: AppColors.surface,
           surfaceTintColor: Colors.transparent,
@@ -52,6 +52,7 @@ class MoneyMateNavigationBar extends StatelessWidget {
             ),
             NavigationDestination(
               icon: Icon(Icons.format_list_bulleted),
+              selectedIcon: Icon(Icons.format_list_bulleted_rounded),
               label: 'ประวัติ',
             ),
             NavigationDestination(

@@ -18,12 +18,14 @@ class TransactionFormScreen extends StatefulWidget {
     required this.onSave,
     this.initialDate,
     this.initialTransaction,
+    this.initialType = TransactionType.expense,
   });
 
   final String transactionId;
   final Future<void> Function(MoneyTransaction) onSave;
   final DateTime? initialDate;
   final MoneyTransaction? initialTransaction;
+  final TransactionType initialType;
 
   @override
   State<TransactionFormScreen> createState() => _TransactionFormScreenState();
@@ -56,6 +58,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       _date = transaction.date;
       return;
     }
+    _type = widget.initialType;
+    _category = categoriesForType(_type).first;
     final now = DateTime.now();
     final initial = widget.initialDate ?? now;
     final initialDay = DateUtils.dateOnly(initial);
@@ -210,7 +214,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // รวมรายละเอียดรายการไว้บนพื้นเดียว เพื่อแยกจากส่วนจำนวนเงินและวันที่
+                      // เน้นจำนวนเงินและประเภทก่อน แล้วค่อยกรอกรายละเอียดรายการด้านล่าง
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -221,19 +225,6 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            TextFormField(
-                              key: const Key('transaction-title'),
-                              controller: _titleController,
-                              enabled: !_saving,
-                              textInputAction: TextInputAction.next,
-                              validator: validateTransactionTitle,
-                              decoration: const InputDecoration(
-                                labelText: 'ชื่อรายการ',
-                                hintText: 'เช่น ค่าอาหารกลางวัน',
-                                errorMaxLines: 4,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
                             const Text(
                               'ประเภทรายการ',
                               style: TextStyle(fontWeight: FontWeight.w600),
@@ -245,6 +236,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                               children: [
                                 for (final type in TransactionType.values)
                                   ChoiceChip(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 10,
+                                    ),
                                     avatar: Icon(
                                       type == TransactionType.income
                                           ? Icons.south_west_rounded
@@ -278,37 +273,39 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 16),
-                            DropdownButtonFormField<TransactionCategory>(
-                              key: const Key('transaction-category'),
-                              initialValue: _category,
-                              isExpanded: true,
-                              itemHeight: null,
-                              decoration: const InputDecoration(
-                                labelText: 'หมวดหมู่',
-                              ),
-                              items: [
-                                for (final category in categories)
-                                  DropdownMenuItem(
-                                    value: category,
-                                    child: Text(
-                                      transactionCategoryLabel(category),
-                                    ),
+                            const SizedBox(height: 24),
+                            TextFormField(
+                              key: const Key('transaction-amount'),
+                              controller: _amountController,
+                              enabled: !_saving,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
                                   ),
-                              ],
-                              onChanged: _saving
-                                  ? null
-                                  : (value) {
-                                      if (value != null) {
-                                        setState(() => _category = value);
-                                      }
-                                    },
+                              textInputAction: TextInputAction.next,
+                              validator: validateTransactionAmount,
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w700,
+                                color: _type == TransactionType.income
+                                    ? AppColors.income
+                                    : AppColors.expense,
+                              ),
+                              decoration: const InputDecoration(
+                                labelText: 'จำนวนเงิน (บาท)',
+                                prefixText: '฿ ',
+                                hintText: '0.00',
+                                helperText:
+                                    'มากกว่า 0 บาท · ทศนิยมไม่เกิน 2 ตำแหน่ง',
+                                helperMaxLines: 3,
+                                errorMaxLines: 5,
+                              ),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // แยกยอดและวันทำรายการเป็นอีกกลุ่ม โดยไม่เปลี่ยนลำดับการกรอกหรือการตรวจค่า
+                      // หมวดหมู่มีไอคอนและสถานะเลือกชัดเจน กดได้โดยไม่ต้องเปิดเมนู
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -320,24 +317,59 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             TextFormField(
-                              key: const Key('transaction-amount'),
-                              controller: _amountController,
+                              key: const Key('transaction-title'),
+                              controller: _titleController,
                               enabled: !_saving,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
-                                  ),
                               textInputAction: TextInputAction.done,
                               onFieldSubmitted: (_) => _save(),
-                              validator: validateTransactionAmount,
+                              validator: validateTransactionTitle,
                               decoration: const InputDecoration(
-                                labelText: 'จำนวนเงิน (บาท)',
-                                hintText: '0.00',
-                                helperText:
-                                    'มากกว่า 0 บาท · ทศนิยมไม่เกิน 2 ตำแหน่ง',
-                                helperMaxLines: 3,
-                                errorMaxLines: 5,
+                                labelText: 'ชื่อรายการ',
+                                hintText: 'เช่น ค่าอาหารกลางวัน',
+                                errorMaxLines: 4,
                               ),
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'หมวดหมู่',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              key: const Key('transaction-category'),
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                for (final category in categories)
+                                  ChoiceChip(
+                                    key: ValueKey(
+                                      'transaction-category-${category.name}',
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 10,
+                                    ),
+                                    avatar: Icon(
+                                      _categoryIcon(category),
+                                      size: 20,
+                                      color: AppColors.primary,
+                                    ),
+                                    label: Text(
+                                      transactionCategoryLabel(category),
+                                    ),
+                                    showCheckmark: false,
+                                    selected: _category == category,
+                                    onSelected: _saving
+                                        ? null
+                                        : (selected) {
+                                            if (selected) {
+                                              setState(
+                                                () => _category = category,
+                                              );
+                                            }
+                                          },
+                                  ),
+                              ],
                             ),
                             const SizedBox(height: 16),
                             OutlinedButton.icon(
@@ -405,3 +437,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     );
   }
 }
+
+IconData _categoryIcon(TransactionCategory category) => switch (category) {
+  TransactionCategory.food => Icons.restaurant_rounded,
+  TransactionCategory.salary => Icons.payments_outlined,
+  TransactionCategory.housing => Icons.home_outlined,
+  TransactionCategory.other => Icons.grid_view_rounded,
+};

@@ -57,6 +57,7 @@ Widget history({
 Future<void> openActions(WidgetTester tester, String id) async {
   final actions = find.byKey(Key('history-actions-$id'));
   await tester.ensureVisible(actions);
+  await tester.pumpAndSettle();
   await tester.tap(actions);
   await tester.pumpAndSettle();
 }
@@ -70,6 +71,76 @@ Future<void> askToDelete(WidgetTester tester, String id) async {
 
 /// ลงทะเบียนกรณีทดสอบในไฟล์นี้; แต่ละ test แยกข้อมูลและคืนทรัพยากรหลังใช้งาน
 void main() {
+  testWidgets('day headings label today and yesterday on the local calendar', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day, 0, 1);
+    final yesterday = DateTime(now.year, now.month, now.day - 1, 23, 59);
+    MoneyTransaction record(String id, DateTime date) => MoneyTransaction(
+      id: id,
+      title: id,
+      amountSatang: 100,
+      type: TransactionType.expense,
+      category: TransactionCategory.food,
+      date: date,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(),
+        home: HistoryScreen(
+          transactions: [
+            record('today', today),
+            record('yesterday', yesterday),
+          ],
+          initialMonth: today,
+          onEditTransaction: (_) async {},
+          onDeleteTransaction: (_) async {},
+          onAddTransaction: () {},
+          onDestinationSelected: (_) {},
+        ),
+      ),
+    );
+    // ทุกเดือนทำให้กรณีวันที่ 1 ยังเห็นวันก่อนหน้าซึ่งอยู่คนละเดือน
+    await tester.tap(find.byKey(const Key('history-month')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ทุกเดือน').last);
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('history-row-yesterday')),
+      100,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('วันนี้ ·'), findsOneWidget);
+    expect(find.textContaining('เมื่อวาน ·'), findsOneWidget);
+  });
+
+  testWidgets(
+    'empty collection offers a first record instead of filter advice',
+    (tester) async {
+      var adds = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildAppTheme(),
+          home: HistoryScreen(
+            transactions: const [],
+            initialMonth: november,
+            onEditTransaction: (_) async {},
+            onDeleteTransaction: (_) async {},
+            onAddTransaction: () => adds++,
+            onDestinationSelected: (_) {},
+          ),
+        ),
+      );
+      expect(find.text('ยังไม่มีรายการ'), findsOneWidget);
+      expect(find.text('ไม่พบรายการที่ตรงกับตัวกรอง'), findsNothing);
+      await tester.ensureVisible(find.text('เพิ่มรายการแรก'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('เพิ่มรายการแรก'));
+      expect(adds, 1);
+    },
+  );
+
   testWidgets('initial month displays ordered rows and exact filtered totals', (
     tester,
   ) async {

@@ -13,7 +13,6 @@ import 'package:project_moneymate/services/transaction_codec.dart';
 const _titleKey = Key('transaction-title');
 const _amountKey = Key('transaction-amount');
 const _saveKey = Key('transaction-save');
-const _categoryKey = Key('transaction-category');
 const _dateKey = Key('transaction-date');
 
 /// เปิดฟอร์มผ่าน Navigator จริง เพื่อทดสอบผลลัพธ์ pop และฉีดพฤติกรรมบันทึกได้
@@ -355,9 +354,7 @@ void main() {
   ) async {
     MoneyTransaction? saved;
     await _openForm(tester, onSave: (value) async => saved = value);
-    await tester.tap(find.byKey(_categoryKey));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('ที่อยู่อาศัย').last);
+    await tester.tap(find.widgetWithText(ChoiceChip, 'ที่อยู่อาศัย'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('รายรับ'));
     await tester.pumpAndSettle();
@@ -405,10 +402,8 @@ void main() {
       );
       expect(
         tester
-            .widget<DropdownButtonFormField<TransactionCategory>>(
-              find.byKey(_categoryKey),
-            )
-            .onChanged,
+            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'อาหาร'))
+            .onSelected,
         isNull,
       );
       expect(

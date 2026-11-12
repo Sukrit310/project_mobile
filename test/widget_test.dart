@@ -1,4 +1,4 @@
-// ทดสอบหน้าหลักตัวอย่างแบบเดี่ยว ทั้งยอด รายการล่าสุด ข้อความทางลัด และขนาดหน้าจอ
+// ทดสอบหน้าหลักตัวอย่าง ยอด รายการล่าสุด การเชื่อม callback และขนาดหน้าจอ
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,53 +6,53 @@ import 'package:project_moneymate/app/app_theme.dart';
 import 'package:project_moneymate/screens/home.dart';
 
 /// เปิด Home แบบตัวอย่างเดี่ยว จึงทดสอบข้อความทางลัดแยกจากเส้นทาง MyApp จริง
-Widget dashboard() => MaterialApp(theme: buildAppTheme(), home: const Home());
+Widget dashboard({VoidCallback? onAdd, ValueChanged<int>? onNavigate}) =>
+    MaterialApp(
+      theme: buildAppTheme(),
+      home: Home(onAddTransaction: onAdd, onDestinationSelected: onNavigate),
+    );
 
 /// ลงทะเบียนกรณีทดสอบในไฟล์นี้; แต่ละ test แยกข้อมูลและคืนทรัพยากรหลังใช้งาน
 void main() {
-  testWidgets('shows consistent demo totals and the two newest transactions', (
-    tester,
-  ) async {
-    await tester.pumpWidget(dashboard());
+  testWidgets(
+    'shows consistent demo totals and up to five newest transactions',
+    (tester) async {
+      await tester.pumpWidget(dashboard());
 
-    expect(find.text('MoneyMate'), findsOneWidget);
-    expect(find.text('฿8,500.00'), findsOneWidget);
-    expect(find.text('+฿12,000'), findsNWidgets(2));
-    expect(find.text('-฿3,500'), findsOneWidget);
-    expect(find.text('-฿80'), findsOneWidget);
-    expect(find.text('พฤศจิกายน 2026'), findsOneWidget);
-    expect(find.text('8 พ.ย. 2026'), findsOneWidget);
-    expect(find.text('1 พ.ย. 2026'), findsOneWidget);
-    expect(
-      tester.getTopLeft(find.text('ค่าอาหาร')).dy,
-      lessThan(tester.getTopLeft(find.text('เงินเดือน')).dy),
-    );
-    expect(find.text('ค่าที่พัก'), findsNothing);
-  });
+      expect(find.text('MoneyMate'), findsOneWidget);
+      expect(find.text('฿8,500.00'), findsOneWidget);
+      expect(find.text('+฿12,000'), findsNWidgets(2));
+      expect(find.text('-฿3,500'), findsOneWidget);
+      expect(find.text('-฿80'), findsOneWidget);
+      expect(find.text('พฤศจิกายน 2026'), findsOneWidget);
+      expect(find.text('8 พ.ย. 2026'), findsOneWidget);
+      expect(find.text('1 พ.ย. 2026'), findsNWidgets(2));
+      expect(
+        tester.getTopLeft(find.text('ค่าอาหาร')).dy,
+        lessThan(tester.getTopLeft(find.text('เงินเดือน')).dy),
+      );
+      expect(find.text('ค่าที่พัก'), findsOneWidget);
+    },
+  );
 
-  testWidgets('add button explains that the form is the next step', (
-    tester,
-  ) async {
-    await tester.pumpWidget(dashboard());
+  testWidgets('add button forwards its real callback', (tester) async {
+    var additions = 0;
+    await tester.pumpWidget(dashboard(onAdd: () => additions++));
     await tester.ensureVisible(find.text('เพิ่มรายการ'));
     await tester.tap(find.text('เพิ่มรายการ'));
     await tester.pump();
 
-    expect(find.text('ฟอร์มเพิ่มรายการจะพร้อมในขั้นตอนถัดไป'), findsOneWidget);
+    expect(additions, 1);
   });
 
-  testWidgets('future navigation explains its status and keeps Home selected', (
+  testWidgets('standalone Home hides actions without working callbacks', (
     tester,
   ) async {
     await tester.pumpWidget(dashboard());
-    await tester.tap(find.text('ประวัติ'));
-    await tester.pump();
-
-    expect(find.text('หน้าประวัติจะพร้อมในขั้นตอนถัดไป'), findsOneWidget);
-    expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      0,
-    );
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('เพิ่มรายการ'), findsNothing);
+    expect(find.text('เพิ่มรายรับ'), findsNothing);
+    expect(find.text('ตั้งงบประมาณ'), findsNothing);
   });
 
   for (final size in [const Size(401, 577), const Size(320, 568)]) {
@@ -66,7 +66,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
-      await tester.pumpWidget(dashboard());
+      await tester.pumpWidget(dashboard(onAdd: () {}, onNavigate: (_) {}));
       expect(tester.takeException(), isNull);
       await tester.ensureVisible(find.text('เพิ่มรายการ'));
       await tester.pump();
